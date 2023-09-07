@@ -7,10 +7,12 @@ export const ChatContext = createContext();
 
 export const ChatContextProvider = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
+
   const INITIAL_STATE = {
     chatId: "null",
     user: {},
   };
+
   const chatReducer = (state, action) => {
     switch (action.type) {
       
@@ -24,12 +26,12 @@ export const ChatContextProvider = ({ children }) => {
         if (newChatId === state.chatId) {
           return state;
         }
-
         return {
           ...state,
           user: action.payload,
           chatId: newChatId,
         };
+        
       case "RESET":
         return INITIAL_STATE;
       default:

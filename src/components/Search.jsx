@@ -18,7 +18,7 @@ const Search = () => {
     // Create a query against the collection.
     try {
       const q = query(usersNames, where("displayName", "==", findUserName));
-      console.log(q, "user111");
+
       const querySnapshot = await getDocs(q);
 
       querySnapshot.forEach((doc) => {
@@ -36,7 +36,6 @@ const Search = () => {
     }
   };
 
-
   const handleKeySearch = (e) => {
     if (e.code === "Enter") {
       handleChange();
@@ -44,10 +43,7 @@ const Search = () => {
   };
   const handleSelect = async () => {
     //check whether the group(chats in firestore) exists, if not create
-    const combinedId =
-      currentUser.uid > user.uid
-        ? currentUser.uid + user.uid
-        : user.uid + currentUser.uid;
+    const combinedId = currentUser.uid > user.uid ? currentUser.uid + user.uid : user.uid + currentUser.uid;
     try {
       const res = await getDoc(doc(db, "chats", combinedId));
       dispatch({ type: "User_Click", payload: user });
@@ -74,13 +70,10 @@ const Search = () => {
           [combinedId + ".date"]: serverTimestamp(),
         });
       }
-    } catch (err) {
-      
-    }
+    } catch (err) {}
     setUser(null);
     setFindUserName("");
   };
-
 
   return (
     <>

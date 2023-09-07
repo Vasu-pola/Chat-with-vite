@@ -8,64 +8,68 @@ import { AuthContext } from "./context/AuthContext";
 import { ChatContext } from "./context/ChatContextProvider";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 
-
 const Input = () => {
   const [text, setText] = useState("");
   const [img, setImg] = useState(null);
+  const [send, setSend] = useState(false);
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
-  console.log(data.chatId, "data");
 
   const handleSend = async () => {
-    if (img) {
-      const storageRef = ref(storage, `${uuid()}`);
-
-      const uploadTask = uploadBytesResumable(storageRef, img);
-
-      uploadTask.on(
-        (error) => {},
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-            await updateDoc(doc(db, "chats", data.chatId), {
-              messages: arrayUnion({
-                id: uuid(),
-                text,
-                senderId: currentUser.uid,
-                date: Timestamp.now(),
-                img: downloadURL,
-              }),
-            });
-          });
-        }
-      );
-      setText("");
-      setImg(null);
+    if (text == "") {
+      setSend(true);
     } else {
-      await updateDoc(doc(db, "chats", data.chatId), {
-        messages: arrayUnion({
-          id: uuid(),
-          text,
-          senderId: currentUser.uid,
-          date: Timestamp.now(),
-        }),
-      });
+      setSend(false);
+      if (img) {
+        const storageRef = ref(storage, `${uuid()}`);
 
-      await updateDoc(doc(db, "userChats", currentUser.uid), {
-        [data.chatId + ".lastMessage"]: {
-          text,
-        },
-        [data.chatId + ".date"]: serverTimestamp(),
-      });
+        const uploadTask = uploadBytesResumable(storageRef, img);
 
-      await updateDoc(doc(db, "userChats", data.user.uid), {
-        [data.chatId + ".lastMessage"]: {
-          text,
-        },
-        [data.chatId + ".date"]: serverTimestamp(),
-      });
+        uploadTask.on(
+          (error) => {},
+          () => {
+            getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+              await updateDoc(doc(db, "chats", data.chatId), {
+                messages: arrayUnion({
+                  id: uuid(),
+                  text,
+                  senderId: currentUser.uid,
+                  date: Timestamp.now(),
+                  img: downloadURL,
+                }),
+              });
+            });
+          }
+        );
+        setText("");
+        setImg(null);
+      } else {
+        await updateDoc(doc(db, "chats", data.chatId), {
+          messages: arrayUnion({
+            id: uuid(),
+            text,
+            senderId: currentUser.uid,
+            date: Timestamp.now(),
+          }),
+        });
+
+        await updateDoc(doc(db, "userChats", currentUser.uid), {
+          [data.chatId + ".lastMessage"]: {
+            text,
+          },
+          [data.chatId + ".date"]: serverTimestamp(),
+        });
+
+        await updateDoc(doc(db, "userChats", data.user.uid), {
+          [data.chatId + ".lastMessage"]: {
+            text,
+          },
+          [data.chatId + ".date"]: serverTimestamp(),
+        });
+        setImg(null);
+        setText("");
+      }
     }
-    setImg(null);
-    setText("");
   };
   const handleKeyInput = (e) => {
     if (e.code === "Enter") {
@@ -73,18 +77,18 @@ const Input = () => {
     }
   };
 
-  // readOnly={data?.chatId !== null ? true : false}
-
   return (
     <div className="input">
       <input type="text" placeholder="Type something..." readOnly={data?.chatId === "null" ? true : false} onChange={(e) => setText(e.target.value)} value={text} onKeyDownCapture={handleKeyInput} />
       <div className="send">
-        <img src={Attach} alt="" />
+        {/* <img src={Attach} alt="" /> */}
         <input type="file" style={{ display: "none" }} id="file" onChange={(e) => setImg(e.target.files[0])} />
         <label htmlFor="file">
           <img src={Img} alt="" />
         </label>
-        <button onClick={handleSend}>Send</button>
+        <button onClick={handleSend} disabled={data?.chatId === "null" && text == "" ? true : false}>
+          Send
+        </button>
       </div>
     </div>
   );

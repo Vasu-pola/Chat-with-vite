@@ -1,13 +1,21 @@
-import React, { useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import cat from "../assets/cat.jpg";
 import { AuthContext } from "./context/AuthContext";
 import { ChatContext } from "./context/ChatContextProvider";
+import Modal from "react-bootstrap/Modal";
+import ModalImage from "react-modal-image";
+
 const Message = ({ message }) => {
-  // const mes = message.message
+  // const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef();
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
 
-  const ref = useRef();
+  // const showModal = () => {
+  //   setIsOpen(true);
+  // };
+  // const handleClose = () => setIsOpen(false);
+
   const seconds = message?.date.seconds;
   const nanoseconds = message?.date.nanoseconds;
 
@@ -35,15 +43,17 @@ const Message = ({ message }) => {
     <>
       <div ref={ref} className={`message ${message?.senderId === currentUser.uid && "owner"}`}>
         <div className="messageInfo">
-          <img src={message?.senderId == currentUser.uid ? currentUser.photoURL : data.user.photoURL} alt="" />
+          <img src={message?.senderId == currentUser.uid ? currentUser.photoURL : data.user.photoURL} alt="" className="msgImage" />
         </div>
         <div className={`messageContent ${message?.senderId === currentUser.uid && "messageContent1"}`}>
-          <p style={{marginBottom:"0px"}}>{message?.text}</p>
-          {message?.img && <img src={message?.img} alt="" />}
+          <p style={{ marginBottom: "0px" }}>{message?.text}</p>
+          {/* {message?.img && <img src={message?.img} alt="" onClick={showModal} className="msgImage" />} */}
+         {message?.img && <ModalImage small={message&&message?.img} large={message?.img} alt="image" hideDownload={true} />}
           <span className="dateshow">{formattedDate && formattedDate}</span>
         </div>
-       
       </div>
+
+
     </>
   );
 };

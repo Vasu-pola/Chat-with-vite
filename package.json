@@ -1,25 +1,24 @@
 {
-  "homepage":"http://Vasu-pola.github.io/Chat-with-vite",
+  "homepage": "/",
   "name": "chat-with-vite",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "predeploy" : "npm run build",
-    "deploy" : "gh-pages -d build",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
     "bootstrap": "^5.3.1",
-    "firebase": "^10.1.0",
+    "firebase": "^10.3.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.45.4",
     "react-hook-form-resolvers": "^0.0.1",
+    "react-modal-image": "^2.6.0",
     "react-router-dom": "^6.14.2",
     "uuid": "^9.0.0",
     "yup": "^1.2.0"
