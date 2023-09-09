@@ -8,7 +8,6 @@ import { getAuth } from "firebase/auth";
 const Chats = () => {
   const [chatlist, setChatList] = useState([]);
   const [users, setusers] = useState([]);
-  // const [duplicateusers, setDuplicateUsers] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const { dispatch } = useContext(ChatContext);
 
@@ -23,22 +22,30 @@ const Chats = () => {
     setusers(updatedUsers);
   };
 
-
-
   function filterUsersByChatList(allUsers, chatList) {
-    return allUsers.filter((user) =>
-      !chatList.some((chatListItem) => chatListItem[1].userInfo.uid === user.uid)
-    );
+    return allUsers.filter((user) => !chatList.some((chatListItem) => chatListItem[1].userInfo.uid === user.uid));
   }
-  
-  // Call the function to get the duplicateUsers array
+
+  function filterUsersByUpdateChatList(allUsers, chatList) {
+    return chatList.map((chatListItem) => {
+      const matchingUser = allUsers.find((user) => user.uid === chatListItem[1].userInfo.uid);
+      if (matchingUser) {
+        // Replace the photoURL in chatListItem with the one from matchingUser
+        chatListItem[1].userInfo.photoURL = matchingUser.photoURL;
+      }
+      return chatListItem[1];
+    });
+  }
+
+  filterUsersByUpdateChatList(users, Object.entries(chatlist));
+
+  /**
+   * Call the function to get the duplicateUsers array*/
   const duplicateUsers = filterUsersByChatList(users, Object.entries(chatlist));
-  
 
   useEffect(() => {
     const getChats = () => {
       const unsub = onSnapshot(doc(db, "userChats", currentUser.uid), (doc) => {
-        // console.log(doc.data(),"chatList");
         setChatList(doc.data());
       });
       return () => {
@@ -48,43 +55,6 @@ const Chats = () => {
     currentUser.uid && getChats();
     currentUser.uid && listOfAllUsers();
   }, [currentUser.uid]);
-
-  const valuesArray = [];
-  Object.values(chatlist).forEach((chatListItem) => {
-    valuesArray.push({
-      userInfo: chatListItem.userInfo,
-      lastMessage: chatListItem.lastMessage,
-      date: chatListItem.date,
-    });
-  });
-
-
-
-  // const combinedArray = [...valuesArray, ...users];
-  // const uniqueUids = new Set();
-  // const uniqueCombinedArray = [];
-
-  // combinedArray.forEach((item) => {
-  //   if (item.userInfo && item.userInfo.uid) {
-  //     // Extract 'uid' from 'userInfo'
-  //     const uid = item.userInfo.uid;
-  //     if (!uniqueUids.has(uid)) {
-  //       uniqueUids.add(uid);
-  //       uniqueCombinedArray.push(item);
-  //     }
-  //   } else if (item.uid) {
-  //     // Use 'uid' directly
-  //     const uid = item.uid;
-  //     if (!uniqueUids.has(uid)) {
-  //       uniqueUids.add(uid);
-  //       uniqueCombinedArray.push(item);
-  //     }
-  //   }
-  // });
-
-  // const uniqueArray = Array.from(new Map(combinedArray.map((item) => [(item.uid, item)])).values());
-
-  // uniqueArray.sort((a, b) => (a.displayName > b.displayName ? 1 : -1));
 
   const handleSelect = (user) => {
     dispatch({ type: "User_Click", payload: user });
@@ -122,11 +92,10 @@ const Chats = () => {
     }
   };
 
-
   return (
     <div className="chatCont">
       <h6 className="registerUsers">Your chat Persons</h6>
-      {Object.entries(chatlist).length>0 ?
+      {Object.entries(chatlist).length > 0 ? (
         Object.entries(chatlist)
           ?.sort((a, b) => b[1].date - a[1].date)
           .map((chatperson) => {
@@ -139,10 +108,13 @@ const Chats = () => {
                 </div>
               </div>
             );
-          }): <>
-            <h6>Your Chat is Empty</h6>
-          </>}
-          <h6 className="registerUsers">Register Users</h6>
+          })
+      ) : (
+        <>
+          <h6>Your Chat is Empty</h6>
+        </>
+      )}
+      <h6 className="registerUsers">Register Users</h6>
       {duplicateUsers.length > 0 &&
         duplicateUsers?.map((item) => {
           return (
@@ -161,83 +133,6 @@ const Chats = () => {
             </>
           );
         })}
-
-      {/* {users &&
-        users
-          .sort((a, b) => a.displayName.localeCompare(b.displayName))
-          .map((user) => {
-            return (
-              <>
-                {currentUser.uid !== user.uid ? (
-                  <>
-                    {chatlist &&
-                      Object.entries(chatlist)
-                        ?.sort((a, b) => b[1].date - a[1].date)
-                        .map((chatperson) => {
-                          return (
-                            <>
-                              {chatperson[1]?.userInfo.uid !== user.uid ? (
-                                <div className="searchusers" key={chatperson[0]} onClick={() => handleSelect(chatperson[1].userInfo)}>
-                                  <img src={chatperson[1]?.userInfo.photoURL} alt="" />
-                                  <div className="userInfo">
-                                    <span>{chatperson[1]?.userInfo.displayName}</span>
-                                    <p>{chatperson[1]?.lastMessage?.text}</p>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="searchusers" key={user.uid} onClick={() => handleSelect(user)}>
-                                  <img src={user.photoURL} alt="img" />
-                                  <div className="userInfo">
-                                    <span>{user.displayName}</span>
-                                  </div>
-                                </div>
-                              )}
-                            </>
-                          );
-                        })}
-                  </>
-                ) : (
-                  <></>
-                )}
-              </>
-            );
-          })} */}
-      {/* {uniqueCombinedArray &&
-        uniqueCombinedArray?.map((item) => {
-          return (
-            <>
-              {currentUser.uid !== item.uid ? (
-                <>
-                  <div className="searchusers" key={item.userInfo.uid ? item.userInfo.uid : item.uid} onClick={() => handleSelect(item)}>
-                    <img src={item?.userInfo.photoURL ? item?.userInfo.photoURL : item.photoURL} alt="" />
-                    <div className="userInfo">
-                      <span>{item?.userInfo.displayName ? item?.userInfo.displayName : item.displayName}</span>
-                      <p>{item?.lastMessage?.text}</p>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <></>
-              )}
-            </>
-          );
-        })} */}
-      {/* {uniqueCombinedArray &&
-        uniqueCombinedArray?.map((item) => {
-          return (
-            <React.Fragment key={item.userInfo?.uid || item.uid}>
-              {currentUser.uid !== item.uid && (
-                <div className="searchusers" onClick={() => handleSelect(item.userInfo ? item.userInfo : item)}>
-                  <img src={item.userInfo?.photoURL ? item.userInfo?.photoURL : item.photoURL} alt="" />
-                  <div className="userInfo">
-                    <span>{item.userInfo?.displayName ? item.userInfo?.displayName : item.displayName}</span>
-                    <p>{item.lastMessage?.text ? item.lastMessage?.text : ""}</p>
-                  </div>
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })} */}
     </div>
   );
 };

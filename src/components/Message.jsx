@@ -11,11 +11,6 @@ const Message = ({ message }) => {
   const { currentUser } = useContext(AuthContext);
   const { data } = useContext(ChatContext);
 
-  // const showModal = () => {
-  //   setIsOpen(true);
-  // };
-  // const handleClose = () => setIsOpen(false);
-
   const seconds = message?.date.seconds;
   const nanoseconds = message?.date.nanoseconds;
 
@@ -25,7 +20,6 @@ const Message = ({ message }) => {
   // Create a JavaScript Date object
   const date = new Date(milliseconds);
 
-  // console.log(date.toISOString().split("-").join("/"),"message");
   const originalDate = new Date(date.toISOString());
   const year = originalDate.getFullYear().toString().slice(-2);
   const month = String(originalDate.getMonth() + 1).padStart(2, "0");

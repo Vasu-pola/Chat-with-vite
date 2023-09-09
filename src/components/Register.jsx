@@ -15,7 +15,7 @@ import avatarImage from "../assets/addAvatar.png";
 const Register = (props) => {
   const { open, close } = props;
   const [ImgPre, setImgPre] = useState(null);
-  const [img,setImg] = useState();
+  const [img, setImg] = useState();
   const navigate = useNavigate();
   const {
     register,
@@ -29,13 +29,13 @@ const Register = (props) => {
     const file = data.image;
     const displayName = data.name;
     const email = data.email;
-   
+
     try {
       const res = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const date = new Date().getTime();
       const storageRef = ref(storage, `${displayName}_${date}`);
 
-      await uploadBytesResumable(storageRef, img&&img).then(() => {
+      await uploadBytesResumable(storageRef, img && img).then(() => {
         getDownloadURL(storageRef).then(async (downloadURL) => {
           try {
             //Update profile
@@ -67,7 +67,7 @@ const Register = (props) => {
 
   const handleImageChange = (event) => {
     const selectedFile = event.target.files[0];
-    setImg(selectedFile)
+    setImg(selectedFile);
     if (selectedFile) {
       const reader = new FileReader();
       reader.onload = (e) => {

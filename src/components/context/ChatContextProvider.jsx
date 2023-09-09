@@ -26,6 +26,7 @@ export const ChatContextProvider = ({ children }) => {
         if (newChatId === state.chatId) {
           return state;
         }
+        
         return {
           ...state,
           user: action.payload,

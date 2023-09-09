@@ -21,7 +21,6 @@ const Navbar = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUserName(currentUser);
     });
-
     return () => unsubscribe();
   }, [auth]);
 
@@ -129,7 +128,6 @@ const Navbar = () => {
           await setDoc(
             userDocRef,
             {
-             
               photoURL: downloadURL,
             },
             { merge: true }
