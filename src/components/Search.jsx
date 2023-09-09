@@ -15,25 +15,54 @@ const Search = () => {
 
   const handleChange = async (e) => {
     const usersNames = collection(db, "users");
-    // Create a query against the collection.
     try {
       const q = query(usersNames, where("displayName", "==", findUserName));
 
       const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        if (doc.data().displayName == currentUser.displayName) {
-          setUser(null);
-          setErr({ ...err, msg: "You Are the user" });
-        } else {
-          setUser(doc.data());
-          setErr({ ...err, msg: "" });
-        }
-      });
-    } catch (err) {
-      setErr({ ...err, msg: "Something went wrong" });
+      if (querySnapshot.empty) {
+        // No user with the provided display name found
+        setErr({ ...err, msg: "User not found" });
+        setUser(null);
+      } else {
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data();
+          if (userData.displayName === currentUser.displayName) {
+            // Current user matches the found user
+            setUser(null);
+            setErr({ ...err, msg: "You are the user" });
+          } else {
+            // User found, set user data
+            setUser(userData);
+            setErr({ ...err, msg: "" });
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
+
+    // const usersNames = collection(db, "users");
+    // // Create a query against the collection.
+    // try {
+    //   const q = query(usersNames, where("displayName", "==", findUserName));
+
+    //   const querySnapshot = await getDocs(q);
+
+    //   querySnapshot.forEach((doc) => {
+    //     // doc.data() is never undefined for query doc snapshots
+
+    //     if (doc.data().displayName == currentUser.displayName) {
+    //       setUser(null);
+    //       setErr({ ...err, msg: "You Are the user" });
+    //     } else {
+    //       setUser(doc.data());
+    //       setErr({ ...err, msg: "" });
+    //     }
+    //   });
+    // } catch (err) {
+    //   setErr({ ...err, msg: "Something went wrong" });
+    // }
   };
 
   const handleKeySearch = (e) => {
@@ -42,7 +71,8 @@ const Search = () => {
     }
   };
   const handleSelect = async () => {
-    //check whether the group(chats in firestore) exists, if not create
+   
+    // check whether the group(chats in firestore) exists, if not create
     const combinedId = currentUser.uid > user.uid ? currentUser.uid + user.uid : user.uid + currentUser.uid;
     try {
       const res = await getDoc(doc(db, "chats", combinedId));

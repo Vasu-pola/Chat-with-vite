@@ -12,7 +12,7 @@ const ChatMenu = () => {
   return (
     <>
       <div className="chat-container">
-        <div className="chat-box d-md-flex">
+        <div className="chat-box d-lg-flex">
           <div className="sidebar">
             <Sidebar />
           </div>

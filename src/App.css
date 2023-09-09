@@ -30,17 +30,25 @@
 
 .main-block{
   display: grid;
-  height: 100vh;
-  place-content: center;
+  /* height: 100vh; */
+  min-height: 100%;
+  height: auto;
+  min-width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
   place-items: center;
-  background-image: url("./assets/pixels.jpg");
+  background: url("./assets/pixels.jpg") no-repeat fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
   background-size: cover;
 
 }
 .logIn-Block{
   box-shadow: 0px 0px 10px 0px #00000040;
   border-radius: 10px;
-  width: 450px;
+  /* width: 450px; */
   background-color: #fff;
 }
 .signUpeError {
@@ -68,4 +76,23 @@
   font-size: 25px;
   font-variant: small-caps;
   color:#102112;
+}
+
+@media only screen and (max-width:991px){
+  .main-block{
+    height: 100%;
+  }
+  .sidebar {
+    width: 100% !important;
+  }
+  .header {
+    text-align: center;
+    flex-direction: column;
+  }
+  .header div {
+    justify-content: center;
+  }
+  .chatCont{
+    height: auto !important;
+  }
 }

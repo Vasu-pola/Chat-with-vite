@@ -1,35 +1,41 @@
 import Modal from "react-bootstrap/Modal";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { auth, colref, db } from "../firbase-config";
 import { addDoc } from "firebase/firestore";
 import { storage } from "../firbase-config";
+import avatarImage from "../assets/addAvatar.png";
 
 const Register = (props) => {
   const { open, close } = props;
+  const [ImgPre, setImgPre] = useState(null);
+  const [img,setImg] = useState();
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm();
 
   const onSubmit = async (data) => {
-    const file = data.image[0];
+    const file = data.image;
     const displayName = data.name;
     const email = data.email;
+   
     try {
       const res = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const date = new Date().getTime();
       const storageRef = ref(storage, `${displayName}_${date}`);
 
-      await uploadBytesResumable(storageRef, file).then(() => {
+      await uploadBytesResumable(storageRef, img&&img).then(() => {
         getDownloadURL(storageRef).then(async (downloadURL) => {
           try {
             //Update profile
@@ -50,8 +56,6 @@ const Register = (props) => {
             await setDoc(doc(db, "userChats", res.user.uid), {});
           } catch (err) {
             console.log(err);
-            // setErr(true);
-            // setLoading(false);
           }
         });
       });
@@ -61,10 +65,27 @@ const Register = (props) => {
     }
   };
 
+  const handleImageChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setImg(selectedFile)
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImgPre(e.target.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleInputFile = () => {
+    const fileInput = document.getElementById("imgInput1");
+    fileInput.click();
+  };
+
   return (
     <>
       <Modal show={open} centered onHide={close}>
-        <Modal.Header closeButton >
+        <Modal.Header closeButton>
           {/* <h5 className="text-center heading"> Chat With You</h5> */}
           <h6 className="text-center heading">Register Here</h6>
         </Modal.Header>
@@ -103,7 +124,38 @@ const Register = (props) => {
 
           <div className="p-2">
             <label>Profile Image:</label>
-            <input type="file" accept="image/png,image/jpeg" placeholder="Phone number" className="form-control" {...register("image", { required: true })} />
+            {/* <input type="file" accept="image/png,image/jpeg" className="form-control" {...register("image", { required: true })} /> */}
+            <img src={ImgPre ? ImgPre : avatarImage} width={"30%"} className="udprofileImg" />
+            <Controller
+              name="image"
+              control={control}
+              defaultValue={null}
+              rules={{ required: "image is required" }}
+              render={({ field }) => (
+                <>
+                  <Form.Control
+                    {...field}
+                    type="file"
+                    id="imgInput1"
+                    accept="image/png,image/jpeg"
+                    className="form-control"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleImageChange(e);
+                    }}
+                    style={{ display: "none" }}
+                  />
+                  <button type="button" className="childbtn" onClick={handleInputFile}>
+                    upload
+                  </button>
+                </>
+              )}
+            />
+            {/* <img src={ImgPre ? ImgPre : avatarImage} width={"30%"} className="udprofileImg" />
+              <input type="file" accept="image/png,image/jpeg" id="imgInput1" className="form-control " onChange={handleImageChange}  style={{ display: "none" }} />
+            <button className="childbtn" type="button" onClick={handleInputFile}>
+              upload
+            </button> */}
             <p className="signUpeError ">{errors.image?.type === "required" && "image is required"}</p>
           </div>
           <div className="text-center ">
